@@ -5,9 +5,7 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
-# ============================================================================
-// CONEXÃO AUTOMÁTICA COM O BANCO DE DADOS POSTGRESQL DO RENDER
-# ============================================================================
+# CONEXAO AUTOMATICA COM O BANCO DE DADOS POSTGRESQL DO RENDER
 def obter_conexao_db():
     url_banco = os.environ.get('DATABASE_URL')
     if url_banco:
@@ -16,7 +14,7 @@ def obter_conexao_db():
         return psycopg2.connect(url_banco)
     return None
 
-# Inicialização automática das tabelas lendo o schema.sql
+# Inicializacao automatica das tabelas lendo o schema.sql
 def inicializar_banco():
     conn = obter_conexao_db()
     if conn:
@@ -30,14 +28,12 @@ def inicializar_banco():
             cursor.close()
             conn.close()
         except Exception as e:
-            print(f"Falha na sincronização inicial do banco: {e}")
+            print(f"Falha na sincronizacao inicial do banco: {e}")
 
 # Executa a checagem estrutural ao subir o servidor
 inicializar_banco()
 
-# ============================================================================
-// ROTAS DE NAVEGAÇÃO DE PÁGINAS (ARQUITETURA MULTI-PÁGINAS)
-# ============================================================================
+# ROTAS DE NAVEGACAO DE PAGINAS (ARQUITETURA MULTI-PAGINAS)
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -66,9 +62,7 @@ def pagina_precificacao():
 def pagina_retorno():
     return render_template('retorno.html')
 
-# ============================================================================
-// ENDPOINT 1: SALVAR E PROCESSAR CUSTOS IMOBILIÁRIOS (CORRIGIDO)
-# ============================================================================
+# ENDPOINT 1: SALVAR E PROCESSAR CUSTOS IMOBILIARIOS
 @app.route('/api/imobiliario', methods=['POST'])
 def salvar_imobiliario():
     data = request.get_json()
@@ -82,7 +76,6 @@ def salvar_imobiliario():
     custo_imobiliario_anual = amortizacao_anual + impostos_anuais
     minutos_ano = horas_operacionais_ano * 60
     
-    # CORREÇÃO APLICADA: Alinhado e validado de minutos_ano para minutos_ano
     custo_minuto_instalacao = custo_imobiliario_anual / minutos_ano if minutos_ano > 0 else 0
 
     conn = obter_conexao_db()
@@ -93,7 +86,7 @@ def salvar_imobiliario():
                 """INSERT INTO investimentos_iniciais (descricao_terreno, valor_terreno, 
                                                     custo_edificacao, impostos_transferencia) 
                    VALUES (%s, %s, %s, %s);""",
-                ('Galpão Industrial Metalúrgico', valor_terreno, custo_edificacao, impostos_anuais)
+                ('Galpao Industrial Metalurgico', valor_terreno, custo_edificacao, impostos_anuais)
             )
             conn.commit()
             cursor.close()
@@ -107,9 +100,7 @@ def salvar_imobiliario():
         'custoAnualTotal': round(custo_imobiliario_anual, 2),
         'custoMinutoInstalacao': round(custo_minuto_instalacao, 4)
     })
-# ============================================================================
-// ENDPOINT 2: REGISTRAR ATIVOS E MÁQUINAS NO BANCO POSTGRESQL
-# ============================================================================
+# ENDPOINT 2: REGISTRAR ATIVOS E MAQUINAS NO BANCO POSTGRESQL
 @app.route('/api/maquinas', methods=['GET', 'POST'])
 def gerenciar_maquinas():
     conn = obter_conexao_db()
@@ -152,16 +143,13 @@ def gerenciar_maquinas():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    # Chamada GET para alimentar a caixa de seleção da engenharia de processos
     cursor.execute("SELECT id, nome_maquina, custo_minuto_maquina FROM maquinas ORDER BY id DESC;")
     maquinas = cursor.fetchall()
     cursor.close()
     conn.close()
     return jsonify(maquinas)
 
-# ============================================================================
-// ENDPOINT 3: SIMULADOR DE MARK-UP COMERCIAL (PRECIFICAÇÃO GLOBAL)
-# ============================================================================
+# ENDPOINT 3: SIMULADOR DE MARK-UP COMERCIAL (PRECIFICACAO GLOBAL)
 @app.route('/api/calculo-markup', methods=['POST'])
 def calcular_markup():
     data = request.get_json()
@@ -181,22 +169,19 @@ def calcular_markup():
         'preco_venda': round(preco_venda, 2)
     })
 
-# ============================================================================
-// ENDPOINT 4: CONSOLE DE AUDITORIA HUMANA (HOLERITE MENSAL E 13º INDIVIDUAL)
-# ============================================================================
+# ENDPOINT 4: CONSOLE DE AUDITORIA HUMANA (HOLERITE MENSAL E 13O INDIVIDUAL)
 @app.route('/api/holerite/<int:funcionario_id>/<int:mes>/<int:ano>', methods=['GET'])
 def gerar_holerite(funcionario_id, mes, ano):
     conn = obter_conexao_db()
     if not conn:
-        return jsonify({'error': 'Erro de conexão'}), 500
+        return jsonify({'error': 'Erro de conexao'}), 500
     
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM funcionarios WHERE id = %s", (funcionario_id,))
     func = cursor.fetchone()
     if not func:
-        return jsonify({'error': 'Funcionário não encontrado'}), 404
+        return jsonify({'error': 'Funcionario nao encontrado'}), 404
 
-    # Busca as horas extras para composição de médias duodecimais
     cursor.execute("SELECT * FROM registro_horas_extras WHERE funcionario_id = %s AND ano_referencia = %s", (funcionario_id, ano))
     historico_he = cursor.fetchall()
     
@@ -211,9 +196,8 @@ def gerar_holerite(funcionario_id, mes, ano):
         total_he_valores += float(he['qtd_horas']) * (valor_hora_comum * fator_dia * fator_noturno)
         
         if float(he['qtd_horas']) > 2.0:
-            alerta_clt += f"Aviso: Extrapolação do limite legal de 2h diárias em {he['data_registro']}. "
+            alerta_clt += f"Aviso: Extrapolacao do limite legal de 2h diarias em {he['data_registro']}. "
 
-    # Cálculo da média duodecimal anual para o 13º Salário (Súmula 45 TST)
     total_he_ano_valores = 0.0
     for he in historico_he:
         fator_dia = 1.5 if he['tipo_dia'] == 'semana' else (1.6 if he['tipo_dia'] == 'sabado' else 2.0)
@@ -224,13 +208,12 @@ def gerar_holerite(funcionario_id, mes, ano):
     valor_13_integral = float(func['salario_base']) + media_he_13
 
     proventos = {
-        'Salário Base': float(func['salario_base']),
+        'Salario Base': float(func['salario_base']),
         'Horas Extras + Adic. Noturno': round(total_he_valores, 2)
     }
     
-    # CORREÇÃO APLICADA: Corrigido de discounts para descontos mapeados
     descontos = {
-        'INSS Contribuição': round(float(func['salario_base']) * 0.09, 2),
+        'INSS Contribuicao': round(float(func['salario_base']) * 0.09, 2),
         'Sindicato': float(func['sindicato']) if func['sindicato'] else 0.0
     }
     
@@ -239,10 +222,10 @@ def gerar_holerite(funcionario_id, mes, ano):
     
     observacao_legal = (
         f"{alerta_clt}\n"
-        f"Fundamentações Legais Aplicadas:\n"
-        f"- Horas extras e reflexos calculados conforme Art. 142 §5º da CLT.\n"
-        f"- Adicional Noturno integrado na hora extra conforme OJ nº 97 SDI-1 TST.\n"
-        f"- Média do Holerite de 13º Salário individualizado amparada na Súmula nº 45 do TST."
+        f"Fundamentacoes Legais Aplicadas:\n"
+        f"- Horas extras e reflexos calculados conforme Art. 142 parágrafo 5 da CLT.\n"
+        f"- Adicional Noturno integrado na hora extra conforme OJ numero 97 SDI-1 TST.\n"
+        f"- Media do Holerite de 13O Salario individualizado amparada na Sumula numero 45 do TST."
     )
 
     return jsonify({
@@ -257,7 +240,7 @@ def gerar_holerite(funcionario_id, mes, ano):
         'holerite_13_estimado': {
             'base_13': round(valor_13_integral, 2),
             'media_he_integrada': round(media_he_13, 2),
-            'obs_13': "Cálculo baseado na Súmula 45 do TST (Média duodecimal anual)."
+            'obs_13': "Calculo baseado na Sumula 45 do TST (Media duodecimal anual)."
         },
         'observacoes_fiscais': observacao_legal
     })
