@@ -1,9 +1,18 @@
 // ============================================================================
+// VARIABLES GLOBAIS ÚNICAS (Declaradas apenas uma vez para evitar travamentos)
+// ============================================================================
+let parqueMaquinas = [];
+let listaProcessos = [];
+let listaInsumos = [];
+let custoMinutoImobiliarioGlobal = 0;
+let totalInvestidoEstrutura = 0;
+let totalInvestidoMaquinas = 0;
+let lucroPorPecaGlobal = 0;
+
+// ============================================================================
 // 1. CONTROLE DE INTERFACE, ACESSIBILIDADE E ESCUTA DE ROTAS
 // ============================================================================
-
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicializa o Menu Hamburger Acessível
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
 
@@ -15,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inicializa os Dropdowns em Cascata via Teclado e Clique
     const dropdowns = document.querySelectorAll('.dropdown');
     dropdowns.forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-toggle');
@@ -43,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('custoTotal')) carregarEMotorCustoGlobal();
 });
 
-// Controles Visuais de Acessibilidade Otimizada
 function toggleContraste() { 
     document.body.classList.toggle('alto-contraste'); 
 }
@@ -56,7 +63,6 @@ function alterarFonte(direcao) {
     }
 }
 
-// Acessibilidade Auditiva: Sintetizador de Voz Nativo do ERP Teradmas
 function emitirAudioTexto(texto) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -66,13 +72,12 @@ function emitirAudioTexto(texto) {
         window.speechSynthesis.speak(mensagem);
     }
 }
+
+
+
 // ============================================================================
 // 2. MÓDULO IMOBILIÁRIO (PÁGINA: terreno.html)
 // ============================================================================
-
-let custoMinutoImobiliarioGlobal = 0;
-let totalInvestidoEstrutura = 0;
-
 async function calcularCustosImobiliarios() {
     const valor_terreno = parseFloat(document.getElementById('imoTerreno').value) || 0;
     const custo_edificacao = parseFloat(document.getElementById('imoEdificacao').value) || 0;
@@ -84,6 +89,8 @@ async function calcularCustosImobiliarios() {
         alert("Por favor, preencha os valores de terreno e edificação.");
         return;
     }
+
+    totalInvestidoEstrutura = valor_terreno + custo_edificacao;
 
     const response = await fetch('/api/imobiliario', {
         method: 'POST',
@@ -98,7 +105,7 @@ async function calcularCustosImobiliarios() {
         const data = await response.json();
         
         localStorage.setItem('custoMinutoImobiliario', data.custoMinutoInstalacao);
-        localStorage.setItem('totalInvestidoEstrutura', (valor_terreno + custo_edificacao).toString());
+        localStorage.setItem('totalInvestidoEstrutura', totalInvestidoEstrutura.toString());
 
         const textoRetorno = `Custos imobiliários processados com sucesso. Impacto de estrutura fixado em R$ ${data.custoMinutoInstalacao.toFixed(4)} por minuto operacional.`;
         box.innerHTML = `<strong>Demonstrativo Imobiliário Teradmas:</strong><br>${textoRetorno}`;
@@ -109,12 +116,8 @@ async function calcularCustosImobiliarios() {
 }
 
 // ============================================================================
-// 3. MÓDULO DE ATIVOS & MÁQUINAS (PÁGINA: maquinas.html) - VERSÃO CORRIGIDA
+// 3. MÓDULO DE ATIVOS & MÁQUINAS (PÁGINA: maquinas.html)
 // ============================================================================
-
-let parqueMaquinas = [];
-let totalInvestidoMaquinas = 0;
-
 async function adicionarMaquinaServidor() {
     const nome = document.getElementById('maquinaNome').value.trim();
     const preco = parseFloat(document.getElementById('maquinaPreco').value) || 0;
@@ -128,14 +131,13 @@ async function adicionarMaquinaServidor() {
         return;
     }
 
-    // CORREÇÃO APLICADA: Alinhado os nomes das chaves para baterem com o backend Flask
     const response = await fetch('/api/maquinas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
             nome: nome, 
             preco: preco, 
-            vida_util: vidaUtil, // Corrigido de vida_util para vidaUtil
+            vida_util: vidaUtil, 
             valor_revenda: valorRevenda, 
             manutencao: manutencao, 
             horas_ano: horasAno 
@@ -157,8 +159,8 @@ async function adicionarMaquinaServidor() {
         
         localStorage.setItem('parqueMaquinas', JSON.stringify(parque));
         
-        let totalMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
-        localStorage.setItem('totalInvestidoMaquinas', totalMaquinas.toString());
+        totalInvestidoMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
+        localStorage.setItem('totalInvestidoMaquinas', totalInvestidoMaquinas.toString());
 
         renderizarTabelaMaquinas();
         document.getElementById('maquinaNome').value = '';
@@ -186,12 +188,10 @@ function renderizarTabelaMaquinas() {
 
 function removerMaquinaLocal(id) {
     let parque = JSON.parse(localStorage.getItem('parqueMaquinas')) || [];
-    const maq = parque.find(m => m.id === id);
-    if(maq) totalInvestidoMaquinas -= maq.preco;
     parque = parque.filter(m => m.id !== id);
     localStorage.setItem('parqueMaquinas', JSON.stringify(parque));
     
-    let totalMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
+    totalInvestidoMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
     localStorage.setItem('totalInvestidoMaquinas', totalMaquinas.toString());
     
     renderizarTabelaMaquinas();
@@ -212,106 +212,12 @@ function atualizarSelectMaquinas() {
     });
 }
 
-// ============================================================================
-// 3. MÓDULO DE ATIVOS & MÁQUINAS (PÁGINA: maquinas.html)
-// ============================================================================
 
-let parqueMaquinas = [];
-let totalInvestidoMaquinas = 0;
 
-async function adicionarMaquinaServidor() {
-    const nome = document.getElementById('maquinaNome').value.trim();
-    const preco = parseFloat(document.getElementById('maquinaPreco').value) || 0;
-    const vidaUtil = parseInt(document.getElementById('maquinaVidaUtil').value) || 1;
-    const valorRevenda = parseFloat(document.getElementById('maquinaValorRevenda').value) || 0;
-    const manutencao = parseFloat(document.getElementById('maquinaManutencao').value) || 0;
-    const horasAno = parseInt(document.getElementById('maquinaHorasAno').value) || 1;
 
-    if (!nome || preco <= 0) {
-        alert("Preencha o nome e o preço do ativo industrial.");
-        return;
-    }
-
-    const response = await fetch('/api/maquinas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, preco, vida_util, valor_revenda, manutencao, horas_ano })
-    });
-
-    if (response.ok) {
-        const dadosCalculados = await response.json();
-        
-        let parque = JSON.parse(localStorage.getItem('parqueMaquinas')) || [];
-        parque.push({
-            id: Date.now(),
-            nome: nome,
-            preco: preco,
-            depreciacaoAnual: dadosCalculados.depreciacaoAnual,
-            custoFixoAnual: dadosCalculados.custoFixoAnual,
-            custoMinuto: dadosCalculados.custoMinuto
-        });
-        
-        localStorage.setItem('parqueMaquinas', JSON.stringify(parque));
-        
-        let totalMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
-        localStorage.setItem('totalInvestidoMaquinas', totalMaquinas.toString());
-
-        renderizarTabelaMaquinas();
-        document.getElementById('maquinaNome').value = '';
-        
-        const aviso = `Ativo ${nome} registrado com sucesso no banco de dados.`;
-        emitirAudioTexto(aviso);
-    } else {
-        alert("Falha ao salvar o ativo no banco PostgreSQL.");
-    }
-}
-
-function renderizarTabelaMaquinas() {
-    const tbody = document.querySelector('#tabelaMaquinas tbody');
-    if (!tbody) return;
-    
-    let parque = JSON.parse(localStorage.getItem('parqueMaquinas')) || [];
-    tbody.innerHTML = '';
-    
-    parque.forEach(m => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${m.nome}</td><td>R$ ${m.depreciacaoAnual.toFixed(2)}</td><td>R$ ${m.custoFixoAnual.toFixed(2)}</td><td>R$ ${m.custoMinuto.toFixed(4)}</td><td><button onclick="removerMaquinaLocal(${m.id})" style="background:#e74c3c; color:white; border:none; padding:4px 8px; cursor:pointer;">Remover</button></td>`;
-        tbody.appendChild(tr);
-    });
-}
-
-function removerMaquinaLocal(id) {
-    let parque = JSON.parse(localStorage.getItem('parqueMaquinas')) || [];
-    const maq = parque.find(m => m.id === id);
-    if(maq) totalInvestidoMaquinas -= maq.preco;
-    parque = parque.filter(m => m.id !== id);
-    localStorage.setItem('parqueMaquinas', JSON.stringify(parque));
-    
-    let totalMaquinas = parque.reduce((acc, curr) => acc + curr.preco, 0);
-    localStorage.setItem('totalInvestidoMaquinas', totalMaquinas.toString());
-    
-    renderizarTabelaMaquinas();
-}
-
-function atualizarSelectMaquinas() {
-    const select = document.getElementById('procSelecaoMaquina');
-    if (!select) return;
-    
-    let parque = JSON.parse(localStorage.getItem('parqueMaquinas')) || [];
-    select.innerHTML = '<option value="">-- Selecione uma máquina --</option>';
-    
-    parque.forEach(m => {
-        const option = document.createElement('option');
-        option.value = m.id;
-        option.textContent = m.nome;
-        select.appendChild(option);
-    });
-}
 // ============================================================================
 // 4. MÓDULO DE PROCESSOS & ENCARGOS MOD (PÁGINA: processos.html)
 // ============================================================================
-let listaProcessos = [];
-
 function adicionarEtapaProcesso() {
     const maquinaId = document.getElementById('procSelecaoMaquina').value;
     const tempoOperacao = parseFloat(document.getElementById('procTempoOperacao').value) || 0;
@@ -329,7 +235,7 @@ function adicionarEtapaProcesso() {
     const maquinaSelecionada = parque.find(m => m.id == maquinaId);
 
     const salarioComEncargos = salarioBase * (1 + (encargosPercentual / 100));
-    const minutosMensaisTrabalho = 220 * 60; // Base padrão de 220h úteis contratuais
+    const minutosMensaisTrabalho = 220 * 60; 
     const custoModMinutoCalculado = salarioComEncargos / minutosMensaisTrabalho;
 
     const tempoSetupRateado = tempoSetup / loteTamanho;
@@ -380,11 +286,13 @@ function removerProcesso(id) {
     localStorage.setItem('listaProcessos', JSON.stringify(rotas));
     renderizarTabelaProcessos();
 }
+
+
+
+
 // ============================================================================
 // 5. MÓDULO DE MATÉRIAS-PRIMAS & INSUMOS (PÁGINA: materiais.html)
 // ============================================================================
-let listaInsumos = [];
-
 function adicionarInsumo() {
     const nome = document.getElementById('insumoNome').value.trim();
     const qtd = parseFloat(document.getElementById('insumoQtd').value) || 0;
@@ -429,8 +337,6 @@ function removerInsumo(id) {
 // ============================================================================
 // 6. MOTOR DE PRECIFICAÇÃO E CANAIS COMERCIAIS (PÁGINA: precificacao.html)
 // ============================================================================
-let lucroPorPecaGlobal = 0;
-
 function carregarEMotorCustoGlobal() {
     const totalProcessos = parseFloat(localStorage.getItem('custoTotalProcessos')) || 0;
     const totalInsumos = parseFloat(localStorage.getItem('custoTotalInsumos')) || 0;
@@ -522,3 +428,4 @@ function calcularTempoRetorno() {
     box.innerHTML = `<strong>Métricas Consolidadas pela Terceiro Adm:</strong><br>${textoSucesso}`;
     emitirAudioTexto(textoSucesso);
 }
+
