@@ -161,3 +161,20 @@ def pagina_precificacao():
 @app.route('/retorno')
 def pagina_retorno():
     return render_template('retorno.html')
+
+
+
+# Adicione este endpoint no seu arquivo app.py existente
+
+@app.route('/api/maquinas', methods=['GET'])
+def listar_maquinas():
+    conn = obter_conexao_db()
+    if not conn:
+        return jsonify([])
+    
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT id, nome_maquina, custo_minuto_maquina FROM maquinas ORDER BY id DESC;")
+    maquinas = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(maquinas)
