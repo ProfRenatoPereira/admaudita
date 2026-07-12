@@ -3,50 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ERP Teradmas{% endblock %}</title>
+    <title>{% block title %}TERCEIRO ADM ASSOCIADOS{% endblock %}</title>
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="../static/css/style.css">
 </head>
 <body>
 
-    <div class="skip-links"><a href="#main-content">Ir para o conteúdo</a></div>
+    <div class="skip-links"><a href="#main-content">Ir para o conteúdo principal</a></div>
 
-    <div class="accessibility-bar" role="toolbar">
-        <button onclick="toggleContraste()">🌓 Alto Contraste</button>
-        <button onclick="alterarFonte(1)">A+</button>
-        <button onclick="alterarFonte(-1)">A-</button>
+    <!-- Barra de Ferramentas de Acessibilidade -->
+    <div class="accessibility-bar" role="toolbar" aria-label="Ferramentas de Acessibilidade">
+        <button onclick="toggleContraste()" aria-label="Alternar Alto Contraste">🌓 Alto Contraste</button>
+        <button onclick="alterarFonte(1)" aria-label="Aumentar tamanho do texto">A+</button>
+        <button onclick="alterarFonte(-1)" aria-label="Diminuir tamanho do texto">A-</button>
     </div>
 
+    <!-- Header Corporativo Institucional -->
     <header class="navbar-corporate" role="banner">
         <div class="header-main-row">
-            <div class="logo-container"><img src="../static/images/logo.png" alt="Logo Teradmas" class="brand-logo"></div>
+            <div class="logo-container">
+                <img src="../static/images/logo.png" alt="Logo Teradmas Desde 2019" class="brand-logo">
+            </div>
             <div class="header-text-container">
                 <h1>TERCEIRO ADM ASSOCIADOS</h1>
                 <p>Projetos, Execução, Assessoria, Auditoria e Gerenciamento Operacional e de Custos</p>
             </div>
-            <button class="menu-toggle" aria-label="Menu" aria-controls="navMenu" id="menuToggle">
-                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+            <button class="menu-toggle" aria-label="Abrir Menu de Navegação" aria-controls="navMenu" aria-expanded="false" id="menuToggle">
+                <span class="bar" aria-hidden="true"></span>
+                <span class="bar" aria-hidden="true"></span>
+                <span class="bar" aria-hidden="true"></span>
             </button>
         </div>
         
-        <nav class="nav-menu-corporate" id="navMenu">
+        <nav class="nav-menu-corporate" id="navMenu" aria-label="Menu Principal">
             <ul class="nav-links">
+                <li><a href="/">Início</a></li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle">1. Estrutura ▾</button>
+                    <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">1. Estrutura ▾</button>
                     <ul class="dropdown-menu">
                         <li><a href="/terreno">Instalações Imobiliárias</a></li>
-                        <li><a href="/maquinas">Ativos & Máquinas</a></li>
+                        <li><a href="/maquinas">Ativos & Máquinas CNC</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle">2. Processos & MOD ▾</button>
+                    <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">2. Processos & MOD ▾</button>
                     <ul class="dropdown-menu">
                         <li><a href="/processos">Roteiro & Tempos</a></li>
-                        <li><a href="/materiais">Matéria-Prima</a></li>
+                        <li><a href="/materiais">Matéria-Prima & Insumos</a></li>
                     </ul>
                 </li>
                 <li class="dropdown">
-                    <button class="dropdown-toggle">3. Finanças & ROI ▾</button>
+                    <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">3. Finanças & ROI ▾</button>
                     <ul class="dropdown-menu">
                         <li><a href="/precificacao">Mark-up Individual</a></li>
                         <li><a href="/retorno">Retorno Acionistas</a></li>
@@ -57,7 +64,6 @@
     </header>
 
     <main class="container" id="main-content" tabindex="-1">
-        <!-- O conteúdo específico de cada página entrará aqui -->
         {% block content %}{% endblock %}
     </main>
 
