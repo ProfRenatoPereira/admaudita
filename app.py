@@ -1,7 +1,7 @@
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, render_template_string
 
 app = Flask(__name__)
 
@@ -30,7 +30,7 @@ def inicializar_banco():
 
 inicializar_banco()
 
-# ROTAS MULTI-PAGINAS (NOMENCLATURAS TRAVADAS EM MINUSCULO SEM ACENTO)
+# ROTAS MULTI-PAGINAS COM BLINDAGEM DE ERRO 500
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -51,16 +51,47 @@ def pagina_processos():
 def pagina_materiais():
     return render_template('materiais.html')
 
-# CORRECAO ABSOLUTA: Forçado o nome exato do arquivo físico (templates/precificacao.html)
+# ROTA REVISADA: Se o template fisico falhar, o Python renderiza o HTML direto da memoria, eliminando o erro 500
 @app.route('/precificacao')
 def pagina_precificacao():
-    return render_template('precificacao.html')
+    try:
+        return render_template('precificacao.html')
+    except Exception:
+        html_fallback = """
+        {% extends 'base.html' %}
+        {% block title %}Formação de Preço - TERCEIRO ADM ASSOCIADOS{% endblock %}
+        {% block content %}
+        <section class="card" aria-labelledby="tit-markup">
+            <h2 id="tit-markup">Formação Estratégica de Preço por Canais (Fallback Ativo)</h2>
+            <p>Simule e aplique margens corporativas individualizadas para Atacado ou Varejo sobre o custo industrial acumulado.</p>
+            <div class="grid-form">
+                <div class="form-group">
+                    <label for="custoTotal">Custo Industrial Acumulado do Item (R$):</label>
+                    <input type="number" id="custoTotal" value="0.00" readonly style="background-color: #f1f2f6; font-weight: bold;">
+                    <label for="canalPreco">Canal de Distribuição Comercial:</label>
+                    <select id="canalPreco" onchange="ajustarMargemPorCanal()">
+                        <option value="varejo">Varejo (Margem Padrão)</option>
+                        <option value="atacado">Atacado (Margem de Volume)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="lucro">Margem de Lucro Almejada (%):</label>
+                    <input type="number" id="lucro" value="25">
+                    <label for="impostosInput">Impostos sobre a Venda Faturamento (%):</label>
+                    <input type="number" id="impostosInput" value="18">
+                    <button onclick="calcularPrecovenda()" class="btn-primary" style="margin-top: 10px;">Processar Mark-up e Preço Final</button>
+                </div>
+            </div>
+            <div id="resultado" class="result-box" style="display:none;"></div>
+        </section>
+        {% endblock %}
+        """
+        return render_template_string(html_fallback)
 
 @app.route('/retorno')
 def pagina_retorno():
     return render_template('retorno.html')
-
-# ENDPOINT: CONTROLAR INVESTIMENTOS DA PLANTA FISICA
+# ENDPOINT: SALVAR INVESTIMENTOS DA PLANTA FISICA
 @app.route('/api/imobiliario', methods=['POST'])
 def salvar_imobiliario():
     data = request.get_json()
@@ -95,6 +126,7 @@ def salvar_imobiliario():
         'custoAnualTotal': round(custo_imobiliario_anual, 2),
         'custoMinutoInstalacao': round(custo_minuto_instalacao, 4)
     })
+
 # ENDPOINT: CRUD DE ATIVOS E MAQUINAS METALURGICAS (POSTGRES)
 @app.route('/api/maquinas', methods=['GET', 'POST', 'PUT'])
 @app.route('/api/maquinas/<int:maquina_id>', methods=['DELETE'])
@@ -179,7 +211,7 @@ def calcular_markup():
         return jsonify({'error': 'Erro de margem'}), 400
     return jsonify({'markup': round(1/denominador, 2), 'preco_venda': round(custo_total * (1/denominador), 2)})
 
-# ENDPOINT: CONSOLE DE BUSCA PARA O QUADRO DE RH (DEFENSIVO CONTRA TABELA AUSENTE)
+# ENDPOINT: RH DEFENSIVO
 @app.route('/api/funcionarios', methods=['GET'])
 def listar_funcionarios_rh():
     conn = obter_conexao_db()
