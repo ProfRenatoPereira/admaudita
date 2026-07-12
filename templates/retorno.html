@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 
-{% block title %}Retorno aos Acionistas - Teradmas{% endblock %}
+{% block title %}Tempo de Retorno - TERCEIRO ADM ASSOCIADOS{% endblock %}
 
 {% block content %}
 <section class="card" aria-labelledby="tit-retorno">
-    <h2 id="tit-retorno">Tempo de Retorno do Capital (Payback & ROI)</h2>
-    <p>Simulador financeiro estruturado pela Terceiro Adm para prever a viabilidade do investimento inicial corporativo.</p>
+    <h2 id="tit-retorno">Métricas de Viabilidade Econômica (Payback & ROI)</h2>
+    <p>Consolide as projeções para auditar o tempo exato de retorno de capital exigido pelos acionistas.</p>
+    
     <div class="grid-form">
         <div class="form-group">
-            <label for="retVendasMensais">Estimativa de Peças Vendidas / Mês:</label>
+            <label for="retVendasMensais">Volume de Peças Vendidas / Mês:</label>
             <input type="number" id="retVendasMensais" value="500">
         </div>
         <div class="form-group">
-            <label for="retDespesasFixas">Outras Despesas Administrativas Fixas / Mês (R$):</label>
+            <label for="retDespesasFixas">Despesas Operacionais Fixas / Mês (R$):</label>
             <input type="number" id="retDespesasFixas" value="8000">
-            <button onclick="calcularTempoRetorno()" class="btn-primary">Analisar Retorno Financeiro</button>
+            <button onclick="calcularTempoRetorno()" class="btn-primary">Calcular Viabilidade do Negócio</button>
         </div>
     </div>
     <div id="resultadoRetorno" class="result-box" style="display:none;" role="region" aria-live="polite"></div>
