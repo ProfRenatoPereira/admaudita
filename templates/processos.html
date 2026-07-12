@@ -1,22 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Engenharia de Processos - Teradmas{% endblock %}
+{% block title %}Roteiros de Fabricação - TERCEIRO ADM ASSOCIADOS{% endblock %}
 
 {% block content %}
 <section class="card" aria-labelledby="tit-roteiro">
-    <h2 id="tit-roteiro">Engenharia de Processos & Mão de Obra</h2>
-    <p>Vincule os tempos operacionais às máquinas disponíveis no parque fabril.</p>
+    <h2 id="tit-roteiro">Engenharia de Processos & Alocação de Tempo de Máquina</h2>
+    <p>Monte o roteiro operacional das peças vinculando os tempos de ciclo e preparação (set-up) ao custo minuto dos ativos.</p>
+    
     <div class="grid-form">
         <div class="form-group">
-            <label for="procSelecaoMaquina">Selecione a Máquina Cadastrada:</label>
+            <label for="procSelecaoMaquina">Selecione o Equipamento Industrial:</label>
             <select id="procSelecaoMaquina">
-                <!-- Populado automaticamente via JS -->
+                <!-- Populado automaticamente do banco via JavaScript -->
             </select>
 
-            <label for="procTempoOperacao">Tempo de Máquina / Ciclo (Minutos):</label>
+            <label for="procTempoOperacao">Tempo de Máquina / Ciclo por Peça (Minutos):</label>
             <input type="number" id="procTempoOperacao" value="15">
 
-            <label for="procTempoSetup">Tempo de Set-up / Preparação (Minutos):</label>
+            <label for="procTempoSetup">Tempo de Preparação / Set-up (Minutos):</label>
             <input type="number" id="procTempoSetup" value="30">
         </div>
         
@@ -24,25 +25,25 @@
             <label for="procSalarioMod">Salário Base Mensal do Operador (R$):</label>
             <input type="number" id="procSalarioMod" value="3000">
 
-            <label for="procEncargosPercentual">Encargos Sociais + Benefícios (%):</label>
+            <label for="procEncargosPercentual">Encargos Sociais + Benefícios Industriais (%):</label>
             <input type="number" id="procEncargosPercentual" value="85">
 
-            <label for="procLoteTamanho">Tamanho do Lote de Produção (Peças):</label>
+            <label for="procLoteTamanho">Tamanho do Lote de Produção Padronizado (Peças):</label>
             <input type="number" id="procLoteTamanho" value="100">
 
-            <button onclick="adicionarEtapaProcesso()" class="btn-primary" style="margin-top: 10px;">Inserir Operação no Roteiro</button>
+            <button onclick="adicionarEtapaProcesso()" class="btn-primary" style="margin-top: 10px;">Inserir Operação no PCP</button>
         </div>
     </div>
 
     <table class="data-table" id="tabelaProcessos">
         <thead>
             <tr>
-                <th>Equipamento</th>
+                <th>Operação / Máquina</th>
                 <th>Ciclo (Min)</th>
-                <th>Custo Máquina</th>
-                <th>Set-up Rateado</th>
-                <th>Custo MOD + Encargos</th>
-                <th>Total Etapa</th>
+                <th>Custo Minuto Máquina</th>
+                <th>Set-up Rateado (Min)</th>
+                <th>Custo MOD Acumulado</th>
+                <th>Total da Etapa</th>
                 <th>Ação</th>
             </tr>
         </thead>
@@ -50,7 +51,7 @@
     </table>
     
     <div class="total-box" style="background-color: #fef9e7; border-left-color: #f39c12;">
-        <strong>Custo Total de Processo: R$ <span id="totalProcessoCusto">0.00</span></strong>
+        <strong>Custo de Processamento da Peça: R$ <span id="totalProcessoCusto">0.00</span></strong>
     </div>
 </section>
 {% endblock %}
