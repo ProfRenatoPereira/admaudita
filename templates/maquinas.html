@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Gestão de Ativos Otimizada{% endblock %}
+
+{% block title %}Gestão de Ativos Metalúrgicos - Teradmas{% endblock %}
+
 {% block content %}
 <section class="card" aria-labelledby="tit-maquinas">
-    <h2 id="tit-maquinas">Gestão de Ativos & Eficiência Energética</h2>
-    <p>Cadastre máquinas parametrizando o consumo em kW e a tarifa da concessionária de energia para rateio industrial.</p>
+    <h2 id="tit-maquinas">Gestão de Ativos & Especificações Técnicas Metalúrgicas</h2>
+    <p>Cadastre e altere os parâmetros técnicos operacionais, capacidade dimensional e potência elétrica das máquinas CNC do parque fabril.</p>
     
-    <!-- Campo oculto para controle de edições e alterações -->
     <input type="hidden" id="maquinaIdOculto" value="">
 
     <div class="grid-form">
         <div class="form-group">
-            <label for="maquinaNome">Nome / Identificação da Máquina:</label>
-            <input type="text" id="maquinaNome" placeholder="Ex: Torno CNC Mazak 01">
+            <label for="maquinaNome">Nome / Identificação do Equipamento:</label>
+            <input type="text" id="maquinaNome" placeholder="Ex: Torno CNC Mazak">
 
             <label for="maquinaPreco">Valor de Aquisição (R$):</label>
             <input type="number" id="maquinaPreco" value="250000">
@@ -21,6 +22,9 @@
 
             <label for="maquinaValorRevenda">Valor Residual de Revenda (R$):</label>
             <input type="number" id="maquinaValorRevenda" value="50000">
+
+            <label for="maquinaAquisicao">Data de Aquisição do Ativo:</label>
+            <input type="date" id="maquinaAquisicao" value="2026-01-15">
         </div>
         <div class="form-group">
             <label for="maquinaManutencao">Custo de Manutenção Anual (R$):</label>
@@ -29,24 +33,32 @@
             <label for="maquinaHorasAno">Horas Operacionais por Ano:</label>
             <input type="number" id="maquinaHorasAno" value="2400">
 
-            <label for="maquinaPotencia">Potência Elétrica do Equipamento (kW):</label>
-            <input type="number" id="maquinaPotencia" value="15.5" step="0.1">
+            <label for="maquinaPotencia">Potência Elétrica (kW):</label>
+            <input type="number" id="maquinaPotencia" value="15.5">
 
-            <label for="maquinaTarifa">Tarifa de Energia Industrial (R$ / kWh):</label>
-            <input type="number" id="maquinaTarifa" value="0.75" step="0.0001">
-            
-            <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top:10px;">Salvar e Registrar Ativo</button>
+            <label for="maquinaDiametro">Diâmetro Máximo de Trabalho (mm):</label>
+            <input type="number" id="maquinaDiametro" value="350">
+
+            <label for="maquinaComprimento">Comprimento Máximo de Trabalho (mm):</label>
+            <input type="number" id="maquinaComprimento" value="1000">
         </div>
+    </div>
+    
+    <div class="form-group" style="margin-top: 15px;">
+        <label for="maquinaPrev">Data para Próxima Manutenção Preventiva:</label>
+        <input type="date" id="maquinaPrev" value="2026-12-20">
+        <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top: 15px;">Salvar e Registrar Ativo</button>
     </div>
 
     <table class="data-table" id="tabelaMaquinas">
         <thead>
             <tr>
                 <th>Equipamento</th>
-                <th>Potência (kW)</th>
-                <th>Custo Fixo / Ano</th>
-                <th>Custo Total / Minuto</th>
-                <th>Ações</th>
+                <th>Capacidade (Ø x Comp)</th>
+                <th>Potência</th>
+                <th>Próxima Preventiva</th>
+                <th>Custo / Minuto</th>
+                <th>Ações Operacionais</th>
             </tr>
         </thead>
         <tbody></tbody>
