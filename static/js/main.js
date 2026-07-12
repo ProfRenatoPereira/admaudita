@@ -65,7 +65,7 @@ function emitirAudioTexto(texto) {
 
 
 // ============================================================================
-// 2. MÓDULO IMOBILIÁRIO & ATIVOS COM ENERGIA ELÉTRICA
+// 2. MÓDULO IMOBILIÁRIO & ATIVOS COM ENERGIA ELÉTRICA (VERSÃO BLINDADA)
 // ============================================================================
 async function calcularCustosImobiliarios() {
     const valor_terreno = parseFloat(document.getElementById('imoTerreno').value) || 0;
@@ -102,29 +102,49 @@ async function carregarMaquinasDoServidor() {
 }
 
 async function adicionarMaquinaServidor() {
-    const id_maquina = document.getElementById('maquinaIdOculto').value;
-    const nome = document.getElementById('maquinaNome').value.trim();
-    const preco = parseFloat(document.getElementById('maquinaPreco').value) || 0;
-    const vidaUtil = parseInt(document.getElementById('maquinaVidaUtil').value) || 1;
-    const valorRevenda = parseFloat(document.getElementById('maquinaValorRevenda').value) || 0;
-    const manutencao = parseFloat(document.getElementById('maquinaManutencao').value) || 0;
-    const horasAno = parseInt(document.getElementById('maquinaHorasAno').value) || 1;
-    const potencia_kw = parseFloat(document.getElementById('maquinaPotencia').value) || 0;
-    const tarifa_kwh = parseFloat(document.getElementById('maquinaTarifa').value) || 0;
+    // Validação anti-quebra: Captura os elementos caso existam na página atual, senão atribui null
+    const elId = document.getElementById('maquinaIdOculto');
+    const elNome = document.getElementById('maquinaNome');
+    const elPreco = document.getElementById('maquinaPreco');
+    const elVidaUtil = document.getElementById('maquinaVidaUtil');
+    const elValorRevenda = document.getElementById('maquinaValorRevenda');
+    const elManutencao = document.getElementById('maquinaManutencao');
+    const elHorasAno = document.getElementById('maquinaHorasAno');
+    const elPotencia = document.getElementById('maquinaPotencia');
+    const elTarifa = document.getElementById('maquinaTarifa');
 
-    if (!nome || preco <= 0) { alert("Preencha os dados do ativo."); return; }
+    // Se os campos base não existirem nesta tela, cancela a operação silenciosamente para não travar o ERP
+    if (!elNome || !elPreco) return;
+
+    const id_maquina = elId ? elId.value : '';
+    const nome = elNome.value.trim();
+    const preco = parseFloat(elPreco.value) || 0;
+    const vidaUtil = elVidaUtil ? parseInt(elVidaUtil.value) || 1 : 1;
+    const valorRevenda = elValorRevenda ? parseFloat(elValorRevenda.value) || 0 : 0;
+    const manutencao = elManutencao ? parseFloat(elManutencao.value) || 0 : 0;
+    const horasAno = elHorasAno ? parseInt(elHorasAno.value) || 1 : 1;
+    
+    // CORREÇÃO DA LINHA 105: Fallback seguro para 0 se o campo de energia não existir nesta aba
+    const potencia_kw = elPotencia ? parseFloat(elPotencia.value) || 0 : 0;
+    const tarifa_kwh = elTarifa ? parseFloat(elTarifa.value) || 0 : 0;
+
+    if (!nome || preco <= 0) { 
+        alert("Preencha os dados do ativo."); 
+        return; 
+    }
 
     const metodo = id_maquina ? 'PUT' : 'POST';
 
     const response = await fetch('/api/maquinas', {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: id_maquina, nome, preco, vida_util, valor_revenda, manutencao, horas_ano, potencia_kw, tarifa_kwh })
+        body: JSON.stringify({ id: id_maquina, nome, preco, vida_util: vidaUtil, valor_revenda: valorRevenda, manutencao, horas_ano, potencia_kw, tarifa_kwh })
     });
 
     if (response.ok) {
-        document.getElementById('maquinaIdOculto').value = '';
-        document.getElementById('btnSalvarAtivo').innerText = "Salvar e Registrar Ativo";
+        if (elId) elId.value = '';
+        const btnSalvar = document.getElementById('btnSalvarAtivo');
+        if (btnSalvar) btnSalvar.innerText = "Salvar e Registrar Ativo";
         carregarMaquinasDoServidor();
         emitirAudioTexto("Equipamento processado e salvo de forma estável.");
     }
@@ -137,12 +157,11 @@ function renderizarTabelaMaquinas() {
     
     parqueMaquinas.forEach(m => {
         const tr = document.createElement('tr');
-        // Tratamento anti-sinal negativo na exibição
         const custoAnualExibir = m.custo_manutencao_anual || m.custoFixoAnual || 0;
         
         tr.innerHTML = `
             <td>${m.nome_maquina || m.nome}</td>
-            <td>${m.potencia_kw} kW</td>
+            <td>${m.potencia_kw || 0} kW</td>
             <td>R$ ${parseFloat(custoAnualExibir).toFixed(2)}</td>
             <td>R$ ${parseFloat(m.custo_minuto_maquina || m.custoMinuto).toFixed(4)}</td>
             <td><button onclick="carregarAtivoParaEdicao(${m.id})" style="background:#3498db; color:white; border:none; padding:4px 8px; cursor:pointer; margin-right:5px;">Editar</button></td>
@@ -155,19 +174,21 @@ function carregarAtivoParaEdicao(id) {
     const m = parqueMaquinas.find(item => item.id === id);
     if (!m) return;
 
-    document.getElementById('maquinaIdOculto').value = m.id;
-    document.getElementById('maquinaNome').value = m.nome_maquina;
-    document.getElementById('maquinaPreco').value = m.preco_compra;
-    document.getElementById('maquinaVidaUtil').value = m.tempo_vida_util_anos;
-    document.getElementById('maquinaValorRevenda').value = m.valor_revenda_estimado;
-    document.getElementById('maquinaManutencao').value = m.custo_manutencao_anual;
-    document.getElementById('maquinaHorasAno').value = m.horas_ativas_ano;
-    document.getElementById('maquinaPotencia').value = m.potencia_kw;
-    document.getElementById('maquinaTarifa').value = m.tarifa_kwh;
+    if (document.getElementById('maquinaIdOculto')) document.getElementById('maquinaIdOculto').value = m.id;
+    if (document.getElementById('maquinaNome')) document.getElementById('maquinaNome').value = m.nome_maquina;
+    if (document.getElementById('maquinaPreco')) document.getElementById('maquinaPreco').value = m.preco_compra;
+    if (document.getElementById('maquinaVidaUtil')) document.getElementById('maquinaVidaUtil').value = m.tempo_vida_util_anos;
+    if (document.getElementById('maquinaValorRevenda')) document.getElementById('maquinaValorRevenda').value = m.valor_revenda_estimado;
+    if (document.getElementById('maquinaManutencao')) document.getElementById('maquinaManutencao').value = m.custo_manutencao_anual;
+    if (document.getElementById('maquinaHorasAno')) document.getElementById('maquinaHorasAno').value = m.horas_ativas_ano;
+    if (document.getElementById('maquinaPotencia')) document.getElementById('maquinaPotencia').value = m.potencia_kw;
+    if (document.getElementById('maquinaTarifa')) document.getElementById('maquinaTarifa').value = m.tarifa_kwh;
 
-    document.getElementById('btnSalvarAtivo').innerText = "Salvar Alterações no Banco";
-    emitirAudioTexto("Ativo carregado. Modifique os campos superiores para alterar.");
+    const btnSalvar = document.getElementById('btnSalvarAtivo');
+    if (btnSalvar) btnSalvar.innerText = "Salvar Alterações no Banco";
+    emitirAudioTexto("Ativo carregado para modificação.");
 }
+
 
 
 
