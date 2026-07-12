@@ -1,3 +1,4 @@
+// VARIABLES GLOBAIS INTEGRADAS (Declaradas estritamente uma única vez)
 let parqueMaquinas = [];
 let listaProcessos = [];
 let listaInsumos = [];
@@ -7,9 +8,9 @@ let totalInvestidoMaquinas = 0;
 let lucroPorPecaGlobal = 0;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Inicialização do Menu Hamburger
     const menuToggle = document.getElementById('menuToggle');
     const navMenu = document.getElementById('navMenu');
-
     if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', () => {
             const expandido = menuToggle.getAttribute('aria-expanded') === 'true';
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Inicialização de Dropdowns
     const dropdowns = document.querySelectorAll('.dropdown');
     dropdowns.forEach(dropdown => {
         const btn = dropdown.querySelector('.dropdown-toggle');
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Gatilhos de Carregamento Seguro de Tabelas
     if (document.getElementById('tabelaMaquinas')) carregarMaquinasDoServidor();
     if (document.getElementById('procSelecaoMaquina')) atualizarSelectMaquinas();
     if (document.getElementById('tabelaProcessos')) renderizarTabelaProcessos();
@@ -44,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('custoTotal')) carregarEMotorCustoGlobal();
 });
 
+// Acessibilidade Otimizada
 function toggleContraste() { document.body.classList.toggle('alto-contraste'); }
 let tamanhoFonteAtual = 100;
 function alterarFonte(direcao) {
@@ -52,7 +56,6 @@ function alterarFonte(direcao) {
         document.documentElement.style.fontSize = `${tamanhoFonteAtual}%`;
     }
 }
-
 function emitirAudioTexto(texto) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -65,7 +68,7 @@ function emitirAudioTexto(texto) {
 
 
 // ============================================================================
-// 2. MÓDULO IMOBILIÁRIO & ATIVOS COM ENERGIA ELÉTRICA (VERSÃO CORRIGIDA E BLINDADA)
+// 2. MÓDULO IMOBILIÁRIO & ATIVOS COM ENERGIA ELÉTRICA
 // ============================================================================
 async function calcularCustosImobiliarios() {
     const valor_terreno = parseFloat(document.getElementById('imoTerreno').value) || 0;
@@ -112,7 +115,6 @@ async function adicionarMaquinaServidor() {
     const elPotencia = document.getElementById('maquinaPotencia');
     const elTarifa = document.getElementById('maquinaTarifa');
 
-    // Se os campos base não existirem nesta tela, cancela a operação silenciosamente para não quebrar o ERP
     if (!elNome || !elPreco) return;
 
     const id_maquina = elId ? elId.value : '';
@@ -122,31 +124,20 @@ async function adicionarMaquinaServidor() {
     const valorRevenda = elValorRevenda ? parseFloat(elValorRevenda.value) || 0 : 0;
     const manutencao = elManutencao ? parseFloat(elManutencao.value) || 0 : 0;
     const horasAno = elHorasAno ? parseInt(elHorasAno.value) || 1 : 1;
-    
     const potencia_kw = elPotencia ? parseFloat(elPotencia.value) || 0 : 0;
     const tarifa_kwh = elTarifa ? parseFloat(elTarifa.value) || 0 : 0;
 
-    if (!nome || preco <= 0) { 
-        alert("Preencha os dados do ativo."); 
-        return; 
-    }
+    if (!nome || preco <= 0) { alert("Preencha os dados do ativo."); return; }
 
     const metodo = id_maquina ? 'PUT' : 'POST';
 
-    // CORREÇÃO DA LINHA 141: Ajustado de 'horas_ano: horas_ano' para usar a variável correta 'horas_ano: horasAno'
     const response = await fetch('/api/maquinas', {
         method: metodo,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            id: id_maquina, 
-            nome: nome, 
-            preco: preco, 
-            vida_util: vidaUtil, 
-            valor_revenda: valorRevenda, 
-            manutencao: manutencao, 
-            horas_ano: horasAno, // Corrigido!
-            potencia_kw: potencia_kw, 
-            tarifa_kwh: tarifa_kwh 
+            id: id_maquina, nome: nome, preco: preco, vida_util: vidaUtil, 
+            valor_revenda: valorRevenda, manutencao: manutencao, horas_ano: horasAno, 
+            potencia_kw: potencia_kw, tarifa_kwh: tarifa_kwh 
         })
     });
 
@@ -155,6 +146,7 @@ async function adicionarMaquinaServidor() {
         const btnSalvar = document.getElementById('btnSalvarAtivo');
         if (btnSalvar) btnSalvar.innerText = "Salvar e Registrar Ativo";
         carregarMaquinasDoServidor();
+        atualizarSelectMaquinas();
         emitirAudioTexto("Equipamento processado e salvo de forma estável.");
     }
 }
@@ -167,13 +159,12 @@ function renderizarTabelaMaquinas() {
     parqueMaquinas.forEach(m => {
         const tr = document.createElement('tr');
         const custoAnualExibir = m.custo_manutencao_anual || m.custoFixoAnual || 0;
-        
         tr.innerHTML = `
             <td>${m.nome_maquina || m.nome}</td>
             <td>${m.potencia_kw || 0} kW</td>
             <td>R$ ${parseFloat(custoAnualExibir).toFixed(2)}</td>
             <td>R$ ${parseFloat(m.custo_minuto_maquina || m.custoMinuto).toFixed(4)}</td>
-            <td><button onclick="carregarAtivoParaEdicao(${m.id})" style="background:#3498db; color:white; border:none; padding:4px 8px; cursor:pointer; margin-right:5px;">Editar</button></td>
+            <td><button onclick="carregarAtivoParaEdicao(${m.id})" style="background:#3498db; color:white; border:none; padding:4px 8px; cursor:pointer;">Editar</button></td>
         `;
         tbody.appendChild(tr);
     });
@@ -182,7 +173,6 @@ function renderizarTabelaMaquinas() {
 function carregarAtivoParaEdicao(id) {
     const m = parqueMaquinas.find(item => item.id === id);
     if (!m) return;
-
     if (document.getElementById('maquinaIdOculto')) document.getElementById('maquinaIdOculto').value = m.id;
     if (document.getElementById('maquinaNome')) document.getElementById('maquinaNome').value = m.nome_maquina;
     if (document.getElementById('maquinaPreco')) document.getElementById('maquinaPreco').value = m.preco_compra;
@@ -190,12 +180,11 @@ function carregarAtivoParaEdicao(id) {
     if (document.getElementById('maquinaValorRevenda')) document.getElementById('maquinaValorRevenda').value = m.valor_revenda_estimado;
     if (document.getElementById('maquinaManutencao')) document.getElementById('maquinaManutencao').value = m.custo_manutencao_anual;
     if (document.getElementById('maquinaHorasAno')) document.getElementById('maquinaHorasAno').value = m.horas_ativas_ano;
-    if (document.getElementById('maquinaPotencia')) document.getElementById('maquinaPotencia').value = m.potencia_kw;
-    if (document.getElementById('maquinaTarifa')) document.getElementById('maquinaTarifa').value = m.tarifa_kwh;
+    if (document.getElementById('maquinaPotencia')) document.getElementById('maquinaPotencia').value = m.potencia_kw || 0;
+    if (document.getElementById('maquinaTarifa')) document.getElementById('maquinaTarifa').value = m.tarifa_kwh || 0;
 
     const btnSalvar = document.getElementById('btnSalvarAtivo');
     if (btnSalvar) btnSalvar.innerText = "Salvar Alterações no Banco";
-    emitirAudioTexto("Ativo carregado para modificação.");
 }
 
 
@@ -216,7 +205,7 @@ async function atualizarSelectMaquinas() {
         parqueMaquinas.forEach(m => {
             const option = document.createElement('option');
             option.value = m.id;
-            option.textContent = m.nome_maquina;
+            option.textContent = m.nome_maquina || m.nome;
             select.appendChild(option);
         });
     }
@@ -239,15 +228,14 @@ function adicionarEtapaProcesso() {
     const tempoSetupRateado = tempoSetup / loteTamanho;
     const tempoTotalAlocadoPorPeca = tempoOperacao + tempoSetupRateado;
 
-    const custoMin = parseFloat(maquinaSelecionada.custo_minuto_maquina || maquinaSelecionada.custoMinuto);
+    const custoMin = parseFloat(maquinaSelecionada.custo_minuto_maquina || maquinaSelecionada.custoMinuto || 0);
     const custoMaquinaEtapa = tempoOperacao * custoMin;
     const custoSetupEtapa = tempoSetupRateado * custoMin;
     const custoModEtapa = tempoTotalAlocadoPorPeca * custoModMinuto;
 
-    let rotas = JSON.parse(localStorage.getItem('listaProcessos')) || [];
-    rotas.push({
+    listaProcessos.push({
         id: Date.now(),
-        maquinaNome: maquinaSelecionada.nome_maquina,
+        maquinaNome: maquinaSelecionada.nome_maquina || maquinaSelecionada.nome,
         tempoOperacao,
         tempoSetupRateado,
         custoMinutoMaquina: custoMin,
@@ -255,18 +243,16 @@ function adicionarEtapaProcesso() {
         custoTotalEtapa: custoMaquinaEtapa + custoSetupEtapa + custoModEtapa
     });
 
-    localStorage.setItem('listaProcessos', JSON.stringify(rotas));
     renderizarTabelaProcessos();
 }
 
 function renderizarTabelaProcessos() {
     const tbody = document.querySelector('#tabelaProcessos tbody');
     if (!tbody) return;
-    let rotas = JSON.parse(localStorage.getItem('listaProcessos')) || [];
     tbody.innerHTML = '';
     let total = 0;
 
-    rotas.forEach(p => {
+    listaProcessos.forEach(p => {
         total += p.custoTotalEtapa;
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${p.maquinaNome}</td><td>${p.tempoOperacao}</td><td>R$ ${p.custoMinutoMaquina.toFixed(4)}</td><td>${p.tempoSetupRateado.toFixed(2)}</td><td>R$ ${p.custoModTotal.toFixed(2)}</td><td><strong>R$ ${p.custoTotalEtapa.toFixed(2)}</strong></td><td><button onclick="removerProcesso(${p.id})">X</button></td>`;
@@ -274,14 +260,15 @@ function renderizarTabelaProcessos() {
     });
     document.getElementById('totalProcessoCusto').innerText = total.toFixed(2);
     localStorage.setItem('custoTotalProcessos', total.toString());
+    carregarEMotorCustoGlobal();
 }
 
 function removerProcesso(id) {
-    let rotas = JSON.parse(localStorage.getItem('listaProcessos')) || [];
-    rotas = rotas.filter(p => p.id !== id);
-    localStorage.setItem('listaProcessos', JSON.stringify(rotas));
+    listaProcessos = listaProcessos.filter(p => p.id !== id);
     renderizarTabelaProcessos();
 }
+
+
 
 
 
@@ -294,20 +281,20 @@ function adicionarInsumo() {
     const custoUn = parseFloat(document.getElementById('insumoCustoUn').value) || 0;
     if (!nome || qtd <= 0 || custoUn <= 0) return;
 
-    let insumos = JSON.parse(localStorage.getItem('listaInsumos')) || [];
-    insumos.push({ id: Date.now(), nome, qtd, custoUn, subtotal: qtd * custoUn });
-    localStorage.setItem('listaInsumos', JSON.stringify(insumos));
+    listaInsumos.push({ id: Date.now(), nome, qtd, custoUn, subtotal: qtd * custoUn });
     renderizarTabelaInsumos();
+    document.getElementById('insumoNome').value = '';
+    document.getElementById('insumoQtd').value = '';
+    document.getElementById('insumoCustoUn').value = '';
 }
 
 function renderizarTabelaInsumos() {
     const tbody = document.querySelector('#tabelaInsumos tbody');
     if (!tbody) return;
-    let insumos = JSON.parse(localStorage.getItem('listaInsumos')) || [];
     tbody.innerHTML = '';
     let total = 0;
 
-    insumos.forEach(item => {
+    listaInsumos.forEach(item => {
         total += item.subtotal;
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${item.nome}</td><td>${item.qtd}</td><td>R$ ${item.custoUn.toFixed(2)}</td><td>R$ ${item.subtotal.toFixed(2)}</td><td><button onclick="removerInsumo(${item.id})">X</button></td>`;
@@ -319,9 +306,7 @@ function renderizarTabelaInsumos() {
 }
 
 function removerInsumo(id) {
-    let insumos = JSON.parse(localStorage.getItem('listaInsumos')) || [];
-    insumos = insumos.filter(i => i.id !== id);
-    localStorage.setItem('listaInsumos', JSON.stringify(insumos));
+    listaInsumos = listaInsumos.filter(i => i.id !== id);
     renderizarTabelaInsumos();
 }
 
@@ -333,9 +318,8 @@ function carregarEMotorCustoGlobal() {
     const totalInsumos = parseFloat(localStorage.getItem('custoTotalInsumos')) || 0;
     const custoMinutoImobiliario = parseFloat(localStorage.getItem('custoMinutoImobiliario')) || 0;
     
-    let rotas = JSON.parse(localStorage.getItem('listaProcessos')) || [];
     let tempoTotalMinutos = 0;
-    rotas.forEach(p => { tempoTotalMinutos += (p.tempoOperacao + p.tempoSetupRateado); });
+    listaProcessos.forEach(p => { tempoTotalMinutos += (p.tempoOperacao + p.tempoSetupRateado); });
 
     const rateioImobiliario = tempoTotalMinutos * custoMinutoImobiliario;
     let custoIndustrialAcumulado = totalProcessos + totalInsumos + rateioImobiliario;
@@ -366,9 +350,9 @@ async function calcularPrecovenda() {
 
     if (response.ok) {
         const data = await response.json();
-        let margemGanhoPeca = data.preco_venda - parseFloat(custo_total);
-        localStorage.setItem('lucroPorPecaGlobal', margemGanhoPeca.toString());
-        document.getElementById('resultado').innerHTML = `<p>Preço Gerado: R$ ${data.preco_venda}</p>`;
+        lucroPorPecaGlobal = data.preco_venda - parseFloat(custo_total);
+        localStorage.setItem('lucroPorPecaGlobal', lucroPorPecaGlobal.toString());
+        document.getElementById('resultado').innerHTML = `<p>Preço Final: R$ ${data.preco_venda} (Markup: ${data.markup}x)</p>`;
         document.getElementById('resultado').style.display = 'block';
     }
 }
@@ -376,13 +360,10 @@ async function calcularPrecovenda() {
 function calcularTempoRetorno() {
     const volumeVendasMensal = parseInt(document.getElementById('retVendasMensais').value) || 0;
     const despesasAdministrativas = parseFloat(document.getElementById('retDespesasFixas').value) || 0;
-    
     const investimentoImobiliario = parseFloat(localStorage.getItem('totalInvestidoEstrutura')) || 0;
     
-    // Soma o valor de compra real das máquinas salvas do banco
     let totalPrecoMaquinas = parqueMaquinas.reduce((acc, curr) => acc + parseFloat(curr.preco_compra || 0), 0);
     const investimentoTotalInicial = investimentoImobiliario + totalPrecoMaquinas;
-    
     const lucroPorPecaGlobal = parseFloat(localStorage.getItem('lucroPorPecaGlobal')) || 0;
 
     if (investimentoTotalInicial <= 0 || lucroPorPecaGlobal <= 0) { alert("Preencha os ativos primeiro."); return; }
@@ -391,10 +372,8 @@ function calcularTempoRetorno() {
     const box = document.getElementById('resultadoRetorno');
     box.style.display = "block";
 
-    if (lucroLiquidoMensal <= 0) { box.innerHTML = "<span style='color:red;'>Lucro operacional insuficiente.</span>"; return; }
+    if (lucroLiquidoMensal <= 0) { box.innerHTML = "<span style='color:red;'>Lucro insuficiente.</span>"; return; }
 
     const meses = investimentoTotalInicial / lucroLiquidoMensal;
     box.innerHTML = `<p>Investimento de R$ ${investimentoTotalInicial.toFixed(2)} retornará em ${meses.toFixed(1)} meses.</p>`;
 }
-
-
