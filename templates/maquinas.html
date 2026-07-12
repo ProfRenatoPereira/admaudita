@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
-
-{% block title %}Gestão de Ativos Metalúrgicos - Teradmas{% endblock %}
-
+{% block title %}Ativos Metalúrgicos - Teradmas{% endblock %}
 {% block content %}
 <section class="card" aria-labelledby="tit-maquinas">
-    <h2 id="tit-maquinas">Gestão de Ativos & Especificações Técnicas Metalúrgicas</h2>
-    <p>Cadastre e altere os parâmetros técnicos operacionais, capacidade dimensional e potência elétrica das máquinas CNC do parque fabril.</p>
+    <h2 id="tit-maquinas">Gestão de Ativos & Eficiência Energética Metalúrgica</h2>
+    <p>Cadastre e altere os parâmetros operacionais, ciclo de manutenção preventiva e consumo elétrico em kW para cálculo do custo-minuto.</p>
     
     <input type="hidden" id="maquinaIdOculto" value="">
 
@@ -33,32 +31,36 @@
             <label for="maquinaHorasAno">Horas Operacionais por Ano:</label>
             <input type="number" id="maquinaHorasAno" value="2400">
 
-            <label for="maquinaPotencia">Potência Elétrica (kW):</label>
-            <input type="number" id="maquinaPotencia" value="15.5">
+            <label for="maquinaPotencia">Potência Elétrica do Motor (kW):</label>
+            <input type="number" id="maquinaPotencia" value="15.5" step="0.1">
+
+            <label for="maquinaTarifa">Tarifa de Energia Industrial (R$ / kWh):</label>
+            <input type="number" id="maquinaTarifa" value="0.75" step="0.0001">
 
             <label for="maquinaDiametro">Diâmetro Máximo de Trabalho (mm):</label>
             <input type="number" id="maquinaDiametro" value="350">
-
-            <label for="maquinaComprimento">Comprimento Máximo de Trabalho (mm):</label>
-            <input type="number" id="maquinaComprimento" value="1000">
         </div>
     </div>
     
     <div class="form-group" style="margin-top: 15px;">
+        <label for="maquinaComprimento">Comprimento Máximo de Trabalho (mm):</label>
+        <input type="number" id="maquinaComprimento" value="1000">
+
         <label for="maquinaPrev">Data para Próxima Manutenção Preventiva:</label>
         <input type="date" id="maquinaPrev" value="2026-12-20">
-        <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top: 15px;">Salvar e Registrar Ativo</button>
+        
+        <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top: 15px;">Salvar e Registrar Ativo no PostgreSQL</button>
     </div>
 
     <table class="data-table" id="tabelaMaquinas">
         <thead>
             <tr>
                 <th>Equipamento</th>
-                <th>Capacidade (Ø x Comp)</th>
+                <th>Capacidade Física</th>
                 <th>Potência</th>
                 <th>Próxima Preventiva</th>
                 <th>Custo / Minuto</th>
-                <th>Ações Operacionais</th>
+                <th>Ações de Controle</th>
             </tr>
         </thead>
         <tbody></tbody>
