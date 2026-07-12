@@ -1,44 +1,52 @@
 {% extends 'base.html' %}
-
-{% block title %}Gestão de Ativos - Teradmas{% endblock %}
-
+{% block title %}Gestão de Ativos Otimizada{% endblock %}
 {% block content %}
 <section class="card" aria-labelledby="tit-maquinas">
-    <h2 id="tit-maquinas">Gestão de Ativos & Minuto-Máquina Metalúrgico</h2>
-    <p>Insira os equipamentos industriais para cálculo automático de depreciação e salvamento permanente no banco de dados.</p>
+    <h2 id="tit-maquinas">Gestão de Ativos & Eficiência Energética</h2>
+    <p>Cadastre máquinas parametrizando o consumo em kW e a tarifa da concessionária de energia para rateio industrial.</p>
+    
+    <!-- Campo oculto para controle de edições e alterações -->
+    <input type="hidden" id="maquinaIdOculto" value="">
+
     <div class="grid-form">
         <div class="form-group">
             <label for="maquinaNome">Nome / Identificação da Máquina:</label>
             <input type="text" id="maquinaNome" placeholder="Ex: Torno CNC Mazak 01">
 
             <label for="maquinaPreco">Valor de Aquisição (R$):</label>
-            <input type="number" id="maquinaPreco" value="280000">
+            <input type="number" id="maquinaPreco" value="250000">
             
             <label for="maquinaVidaUtil">Vida Útil Estimada (Anos):</label>
             <input type="number" id="maquinaVidaUtil" value="12">
-        </div>
-        <div class="form-group">
+
             <label for="maquinaValorRevenda">Valor Residual de Revenda (R$):</label>
             <input type="number" id="maquinaValorRevenda" value="50000">
-
+        </div>
+        <div class="form-group">
             <label for="maquinaManutencao">Custo de Manutenção Anual (R$):</label>
             <input type="number" id="maquinaManutencao" value="18000">
             
             <label for="maquinaHorasAno">Horas Operacionais por Ano:</label>
             <input type="number" id="maquinaHorasAno" value="2400">
+
+            <label for="maquinaPotencia">Potência Elétrica do Equipamento (kW):</label>
+            <input type="number" id="maquinaPotencia" value="15.5" step="0.1">
+
+            <label for="maquinaTarifa">Tarifa de Energia Industrial (R$ / kWh):</label>
+            <input type="number" id="maquinaTarifa" value="0.75" step="0.0001">
             
-            <button onclick="adicionarMaquinaServidor()" class="btn-primary">Salvar e Registrar Ativo</button>
+            <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top:10px;">Salvar e Registrar Ativo</button>
         </div>
     </div>
 
-    <table class="data-table" id="tabelaMaquinas" aria-label="Lista de Ativos Cadastrados">
+    <table class="data-table" id="tabelaMaquinas">
         <thead>
             <tr>
                 <th>Equipamento</th>
-                <th>Depreciação Anual</th>
+                <th>Potência (kW)</th>
                 <th>Custo Fixo / Ano</th>
-                <th>Custo por Minuto</th>
-                <th>Ação</th>
+                <th>Custo Total / Minuto</th>
+                <th>Ações</th>
             </tr>
         </thead>
         <tbody></tbody>
