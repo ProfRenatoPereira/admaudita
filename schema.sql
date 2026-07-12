@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS investimentos_iniciais (
     data_aquisicao DATE DEFAULT CURRENT_DATE
 );
 
--- Tabela de Ativos expandida com especificações de capacidade física metalúrgica
 CREATE TABLE IF NOT EXISTS maquinas (
     id SERIAL PRIMARY KEY,
     nome_maquina VARCHAR(100) NOT NULL,
