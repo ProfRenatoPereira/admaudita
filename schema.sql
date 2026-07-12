@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS investimentos_iniciais (
     data_aquisicao DATE DEFAULT CURRENT_DATE
 );
 
--- Tabela de Máquinas expandida com Engenharia de Energia Elétrica
+-- Tabela de Ativos expandida com especificações de capacidade física metalúrgica
 CREATE TABLE IF NOT EXISTS maquinas (
     id SERIAL PRIMARY KEY,
     nome_maquina VARCHAR(100) NOT NULL,
@@ -50,6 +50,10 @@ CREATE TABLE IF NOT EXISTS maquinas (
     horas_ativas_ano INT NOT NULL,
     potencia_kw NUMERIC(8,2) DEFAULT 0.00,
     tarifa_kwh NUMERIC(6,4) DEFAULT 0.0000,
+    data_aquisicao DATE NOT NULL DEFAULT CURRENT_DATE,
+    data_manutencao_preventiva DATE NOT NULL,
+    diametro_trabalho_mm NUMERIC(8,2) DEFAULT 0.00,
+    comprimento_trabalho_mm NUMERIC(8,2) DEFAULT 0.00,
     custo_minuto_maquina NUMERIC(10,4) NOT NULL
 );
 
