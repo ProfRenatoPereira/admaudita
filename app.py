@@ -84,40 +84,40 @@ def pagina_maquinas():
             <input type="hidden" id="maquinaIdOculto" value="">
             <div class="grid-form">
                 <div class="form-group">
-                    <label for="maquinaNome">Equipamento:</label>
+                    <label for="maquinaNome">Nome / Identificação do Equipamento:</label>
                     <input type="text" id="maquinaNome" placeholder="Ex: Torno CNC Mazak">
                     <label for="maquinaPreco">Preço Compra (R$):</label>
                     <input type="number" id="maquinaPreco" value="250000">
-                    <label for="maquinaVidaUtil">Vida Útil (Anos):</label>
+                    <label for="maquinaVidaUtil">Vida Útil Estimada (Anos):</label>
                     <input type="number" id="maquinaVidaUtil" value="12">
-                    <label for="maquinaValorRevenda">Valor Residual (R$):</label>
+                    <label for="maquinaValorRevenda">Valor Residual de Revenda (R$):</label>
                     <input type="number" id="maquinaValorRevenda" value="50000">
-                    <label for="maquinaAquisicao">Data Aquisição:</label>
+                    <label for="maquinaAquisicao">Data de Aquisição do Ativo:</label>
                     <input type="date" id="maquinaAquisicao" value="2026-01-15">
                 </div>
                 <div class="form-group">
-                    <label for="maquinaManutencao">Manutenção Anual (R$):</label>
+                    <label for="maquinaManutencao">Custo de Manutenção Anual (R$):</label>
                     <input type="number" id="maquinaManutencao" value="18000">
-                    <label for="maquinaHorasAno">Horas / Ano:</label>
+                    <label for="maquinaHorasAno">Horas Operacionais por Ano:</label>
                     <input type="number" id="maquinaHorasAno" value="2400">
-                    <label for="maquinaPotencia">Potência (kW):</label>
+                    <label for="maquinaPotencia">Potência Elétrica do Motor (kW):</label>
                     <input type="number" id="maquinaPotencia" value="15.5" step="0.1">
-                    <label for="maquinaTarifa">Tarifa Energia (R$ / kWh):</label>
+                    <label for="maquinaTarifa">Tarifa de Energia Industrial (R$ / kWh):</label>
                     <input type="number" id="maquinaTarifa" value="0.75" step="0.0001">
-                    <label for="maquinaDiametro">Diâmetro Trabalho (mm):</label>
+                    <label for="maquinaDiametro">Diâmetro Máximo de Trabalho (mm):</label>
                     <input type="number" id="maquinaDiametro" value="350">
                 </div>
             </div>
             <div class="form-group" style="margin-top: 15px;">
-                <label for="maquinaComprimento">Comprimento Trabalho (mm):</label>
+                <label for="maquinaComprimento">Comprimento Máximo de Trabalho (mm):</label>
                 <input type="number" id="maquinaComprimento" value="1000">
-                <label for="maquinaPrev">Próxima Preventiva:</label>
+                <label for="maquinaPrev">Data para Próxima Manutenção Preventiva:</label>
                 <input type="date" id="maquinaPrev" value="2026-12-20">
                 <button onclick="adicionarMaquinaServidor()" class="btn-primary" id="btnSalvarAtivo" style="margin-top: 15px;">Salvar e Registrar Ativo</button>
             </div>
             <table class="data-table" id="tabelaMaquinas">
                 <thead>
-                    <tr><th>Equipamento</th><th>Capacidade</th><th>Potência</th><th>Preventiva</th><th>Custo/Min</th><th>Ações</th></tr>
+                    <tr><th>Equipamento</th><th>Capacidade Física</th><th>Potência</th><th>Próxima Preventiva</th><th>Custo / Minuto</th><th>Ações de Controle</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -138,28 +138,29 @@ def pagina_processos():
         {% block content %}
         <section class="card" aria-labelledby="tit-roteiro">
             <h2 id="tit-roteiro">Engenharia de Processos & Tempo de Máquina</h2>
+            <p>Monte o roteiro operacional das peças vinculando os tempos de ciclo e preparação (set-up) ao custo minuto dos ativos.</p>
             <div class="grid-form">
                 <div class="form-group">
-                    <label for="procSelecaoMaquina">Equipamento:</label>
+                    <label for="procSelecaoMaquina">Equipamento Industrial:</label>
                     <select id="procSelecaoMaquina"><option value="">-- Selecione uma máquina --</option></select>
-                    <label for="procTempoOperacao">Tempo Ciclo (Minutos):</label>
+                    <label for="procTempoOperacao">Tempo Ciclo por Peça (Minutos):</label>
                     <input type="number" id="procTempoOperacao" value="15">
-                    <label for="procTempoSetup">Tempo Set-up (Minutos):</label>
+                    <label for="procTempoSetup">Tempo Set-up / Preparação (Minutos):</label>
                     <input type="number" id="procTempoSetup" value="30">
                 </div>
                 <div class="form-group">
-                    <label for="procSalarioMod">Salário Mensal (R$):</label>
+                    <label for="procSalarioMod">Salário Base Mensal do Operador (R$):</label>
                     <input type="number" id="procSalarioMod" value="3000">
-                    <label for="procEncargosPercentual">Encargos (%):</label>
+                    <label for="procEncargosPercentual">Encargos Sociais + Benefícios (%):</label>
                     <input type="number" id="procEncargosPercentual" value="85">
-                    <label for="procLoteTamanho">Tamanho do Lote (Peças):</label>
+                    <label for="procLoteTamanho">Tamanho do Lote de Produção (Peças):</label>
                     <input type="number" id="procLoteTamanho" value="100">
                     <button onclick="adicionarEtapaProcesso()" class="btn-primary" style="margin-top: 10px;">Inserir Operação no PCP</button>
                 </div>
             </div>
             <table class="data-table" id="tabelaProcessos">
                 <thead>
-                    <tr><th>Operação / Máquina</th><th>Ciclo (Min)</th><th>Custo Minuto</th><th>Set-up</th><th>Custo MOD</th><th>Total</th><th>Ação</th></tr>
+                    <tr><th>Operação / Máquina</th><th>Ciclo (Min)</th><th>Custo Minuto</th><th>Set-up Rateado</th><th>Custo MOD</th><th>Total Etapa</th><th>Ação</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -185,20 +186,20 @@ def pagina_precificacao():
             <h2 id="tit-markup">Formação Estratégica de Preço por Canais</h2>
             <div class="grid-form">
                 <div class="form-group">
-                    <label for="custoTotal">Custo Acumulado (R$):</label>
+                    <label for="custoTotal">Custo Industrial Acumulado (R$):</label>
                     <input type="number" id="custoTotal" value="0.00" readonly style="background-color:#f1f2f6; font-weight:bold;">
-                    <label for="canalPreco">Canal de Distribuição:</label>
+                    <label for="canalPreco">Canal de Distribuição Comercial:</label>
                     <select id="canalPreco" onchange="ajustarMargemPorCanal()">
                         <option value="varejo">Varejo (Margem Padrão)</option>
                         <option value="atacado">Atacado (Margem de Volume)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="lucro">Margem Desejada (%):</label>
+                    <label for="lucro">Margem de Lucro Almejada (%):</label>
                     <input type="number" id="lucro" value="25">
-                    <label for="impostosInput">Impostos (%):</label>
+                    <label for="impostosInput">Impostos sobre a Venda Faturamento (%):</label>
                     <input type="number" id="impostosInput" value="18">
-                    <button onclick="calcularPrecovenda()" class="btn-primary" style="margin-top: 10px;">Calcular Preço Comercial</button>
+                    <button onclick="calcularPrecovenda()" class="btn-primary" style="margin-top: 10px;">Processar Mark-up e Preço Final</button>
                 </div>
             </div>
             <div id="resultado" class="result-box" style="display:none;"></div>
